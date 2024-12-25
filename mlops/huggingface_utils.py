@@ -1,17 +1,22 @@
-
-# %%
 from huggingface_hub import HfApi
 from datetime import datetime
 
 def upload_to_huggingface(file_path, repo_name, token, path_in_repo="auto", repo_type="model"):
-    # 如果 path_in_repo 为 "auto"，在文件名前加时间戳
+    """
+    Upload a file to a Hugging Face repo with optional timestamp prefix.
+    - file_path: Local file path
+    - repo_name: Hugging Face repo name
+    - token: API token
+    - path_in_repo: Repo path, "auto" adds timestamp
+    - repo_type: Repo type ("model", "dataset", "space")
+    """
     if path_in_repo == "auto":
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")  # 生成时间戳，格式为 YYYYMMDDHHMMSS
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         file_name = file_path.split("/")[-1]
-        path_in_repo = f"{timestamp}_{file_name}"  # 将时间戳加到文件名前
-    # 创建 API 实例
-    api = HfApi()
-    # 上传文件
+        path_in_repo = f"{timestamp}_{file_name}"
+
+    api = HfApi()  # API instance
+
     api.upload_file(
         path_or_fileobj=file_path,
         path_in_repo=path_in_repo,
@@ -19,13 +24,13 @@ def upload_to_huggingface(file_path, repo_name, token, path_in_repo="auto", repo
         repo_type=repo_type,
         token=token
     )
-    print(f"File '{file_path}' successfully uploaded to '{repo_name}' at '{path_in_repo}'.")
+    
+    print(f"Uploaded '{file_path}' to '{repo_name}' at '{path_in_repo}'.")
 
 if __name__ == "__main__":
-    repo_name = "your-repo-name"  # 替换为你的仓库名称
-    HF_TOKEN = "your-huggingface-token"  # 替换为你的 Hugging Face 访问令牌
+    repo_name = "your-repo-name"
+    HF_TOKEN = "your-huggingface-token" # https://huggingface.co/settings/tokens
     upload_to_huggingface("test.txt", repo_name, HF_TOKEN)
-
 
 # %%
 import re
@@ -33,41 +38,38 @@ from huggingface_hub import HfApi, hf_hub_download
 from datetime import datetime
 
 def get_latest_file(repo_name, token, repo_type="model"):
-    # 创建 API 实例
+    """
+    Get the most recent timestamped file in a Hugging Face repo.
+    - repo_name: Hugging Face repo name
+    - token: API token
+    - repo_type: Repo type
+    Returns: Latest file name or None.
+    """
     api = HfApi()
-
-    # 获取仓库中文件列表
     files = api.list_repo_files(repo_id=repo_name, repo_type=repo_type, token=token)
-
-    # 匹配文件名中带有时间戳的文件
     timestamp_pattern = r"(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})"
-    files_with_timestamps = {}
 
-    for file_name in files:
-        match = re.search(timestamp_pattern, file_name)
-        if match:
-            timestamp = match.group(1)
-            # 转换时间戳为 datetime 对象
-            timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%d_%H-%M-%S")
-            files_with_timestamps[file_name] = timestamp_dt
+    files_with_timestamps = {
+        file_name: datetime.strptime(re.search(timestamp_pattern, file_name).group(1), "%Y-%m-%d_%H-%M-%S")
+        for file_name in files if re.search(timestamp_pattern, file_name)
+    }
 
-    # 如果没有符合条件的文件，返回 None
-    if not files_with_timestamps:
-        return None
+    return max(files_with_timestamps, key=files_with_timestamps.get) if files_with_timestamps else None
 
-    # 找到最新的文件
-    latest_file = max(files_with_timestamps, key=files_with_timestamps.get)
-    return latest_file
-
-def download_latest_file(repo_name, token, repo_type="model"):
-    # 获取最新文件的名称
+def download_latest_file(repo_name, token=None, repo_type="model"):
+    """
+    Download the most recent timestamped file from a Hugging Face repo.
+    - repo_name: Hugging Face repo name
+    - token: API token
+    - repo_type: Repo type
+    Returns: Downloaded file path or None.
+    """
     latest_file = get_latest_file(repo_name, token, repo_type)
 
-    if latest_file is None:
-        print("No files with timestamps found in the repository.")
+    if not latest_file:
+        print("No timestamped files found.")
         return None
 
-    # 使用 hf_hub_download 下载文件
     downloaded_file_path = hf_hub_download(
         repo_id=repo_name,
         filename=latest_file,
@@ -75,12 +77,10 @@ def download_latest_file(repo_name, token, repo_type="model"):
         token=token
     )
 
-    print(f"Latest file '{latest_file}' has been downloaded to '{downloaded_file_path}'.")
+    print(f"Downloaded '{latest_file}' to '{downloaded_file_path}'.")
     return downloaded_file_path
 
 if __name__ == "__main__":
-    repo_name = "your-repo-name"  # 替换为你的仓库名称
-    HF_TOKEN = "your-hf-token"  # 替换为你的 Hugging Face Token
-
-    downloaded_file_path = download_latest_file(repo_name, HF_TOKEN)
-    print(f"Downloaded file path: {downloaded_file_path = }")
+    repo_name = "your-repo-name"
+    downloaded_file_path = download_latest_file(repo_name)
+    print(f"{downloaded_file_path = }")
