@@ -90,5 +90,5 @@ if __name__ == "__main__":
     # %pip install git+https://github.com/YifeiDevs/MLOps.git
     # from mlops.huggingface_utils import download_latest_file
     repo_name = "your-repo-name"
-    downloaded_file_path = download_latest_file(repo_name, repo_type="model" or "dataset")
+    downloaded_file_path = download_latest_file(repo_name, repo_type="model" or "dataset", token=None)
     print(f"{downloaded_file_path = }")
