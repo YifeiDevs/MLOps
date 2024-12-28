@@ -1,7 +1,8 @@
+import os
 from huggingface_hub import HfApi
 from datetime import datetime
 
-def upload_to_huggingface(file_path, repo_name, token, path_in_repo="auto", repo_type="model"):
+def upload_to_huggingface(file_path, repo_name, token, path_in_repo="auto", repo_type="model", add_timestamp_prefix=True):
     """
     Upload a file to a Hugging Face repo with optional timestamp prefix.
     - file_path: Local file path
@@ -11,9 +12,12 @@ def upload_to_huggingface(file_path, repo_name, token, path_in_repo="auto", repo
     - repo_type: Repo type ("model", "dataset", "space")
     """
     if path_in_repo == "auto":
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        file_name = file_path.split("/")[-1]
-        path_in_repo = f"{timestamp}_{file_name}"
+        # file_name = file_path.split("/")[-1]
+        file_name = os.path.basename(file_path)
+        if add_timestamp_prefix:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            file_name = f"{timestamp}_{file_name}"
+        path_in_repo = file_name
 
     api = HfApi()  # API instance
 
@@ -28,6 +32,7 @@ def upload_to_huggingface(file_path, repo_name, token, path_in_repo="auto", repo
     print(f"Uploaded '{file_path}' to '{repo_name}' at '{path_in_repo}'.")
 
 if __name__ == "__main__":
+    # %pip install git+https://github.com/YifeiDevs/MLOps.git
     repo_name = "your-repo-name"
     HF_TOKEN = "your-huggingface-token" # https://huggingface.co/settings/tokens
     upload_to_huggingface("test.txt", repo_name, HF_TOKEN)
@@ -81,6 +86,7 @@ def download_latest_file(repo_name, token=None, repo_type="model"):
     return downloaded_file_path
 
 if __name__ == "__main__":
+    # %pip install git+https://github.com/YifeiDevs/MLOps.git
     repo_name = "your-repo-name"
     downloaded_file_path = download_latest_file(repo_name)
     print(f"{downloaded_file_path = }")
