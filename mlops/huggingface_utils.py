@@ -33,9 +33,10 @@ def upload_to_huggingface(file_path, repo_name, token, path_in_repo="auto", repo
 
 if __name__ == "__main__":
     # %pip install git+https://github.com/YifeiDevs/MLOps.git
+    # from mlops.huggingface_utils import upload_to_huggingface
     repo_name = "your-repo-name"
     HF_TOKEN = "your-huggingface-token" # https://huggingface.co/settings/tokens
-    upload_to_huggingface("test.txt", repo_name, HF_TOKEN)
+    upload_to_huggingface("test.txt", repo_name, HF_TOKEN, repo_type="model" or "dataset")
 
 # %%
 import re
@@ -87,6 +88,7 @@ def download_latest_file(repo_name, token=None, repo_type="model"):
 
 if __name__ == "__main__":
     # %pip install git+https://github.com/YifeiDevs/MLOps.git
+    # from mlops.huggingface_utils import download_latest_file
     repo_name = "your-repo-name"
-    downloaded_file_path = download_latest_file(repo_name)
+    downloaded_file_path = download_latest_file(repo_name, repo_type="model" or "dataset")
     print(f"{downloaded_file_path = }")
