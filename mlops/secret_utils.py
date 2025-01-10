@@ -15,6 +15,13 @@ def get_secret_key(secret_name: str) -> str:
     Returns:
         The secret key value, or None if not found.
     """
+    # Attempt Kaggle    
+    try:
+        from kaggle_secrets import UserSecretsClient
+        return UserSecretsClient().get_secret(secret_name)
+    except ImportError:
+        pass
+
     # Attempt Google Colab
     try:
         from google.colab import userdata
@@ -22,12 +29,7 @@ def get_secret_key(secret_name: str) -> str:
     except ImportError:
         pass
 
-    # Attempt Kaggle    
-    try:
-        from kaggle_secrets import UserSecretsClient
-        return UserSecretsClient().get_secret(secret_name)
-    except ImportError:
-        pass
+
 
     # Attempt local environment (and .env)
     if Path('.env').exists():
