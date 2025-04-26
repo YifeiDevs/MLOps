@@ -17,4 +17,4 @@ if __name__ == "__main__":
     device_type, num_processes = get_device_info()
     print(f"Device: {device_type}") # "cpu", "cuda" or "xla"
     print(f"Processes: {num_processes}")
-    print("Running in Colab or Kaggle:", is_in_colab_or_kaggle())
+    print("Running in Colab or Kaggle:", in_colab_or_kaggle())
