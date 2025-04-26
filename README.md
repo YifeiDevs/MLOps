@@ -29,3 +29,15 @@ repo_name = "your-repo-name"
 downloaded_file_path = download_latest_file(repo_name, repo_type="model" or "dataset", token=None)
 print(f"{downloaded_file_path = }")
 ```
+
+## device
+```python
+from mlops.device_utils import get_device_info, in_colab_or_kaggle
+device_type, num_processes = get_device_info()
+print(f"Device: {device_type}") # "cpu", "cuda" or "xla"
+print(f"Processes: {num_processes}")
+print("Running in Colab or Kaggle:", in_colab_or_kaggle())
+```
+
+
+
