@@ -2,7 +2,7 @@
 
 
 ```shell
-pip install git+https://github.com/YifeiDevs/MLOps.git
+pip install --upgrade git+https://github.com/YifeiDevs/MLOps.git
 ```
 
 ## get_secret_key
